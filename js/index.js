@@ -26,23 +26,40 @@ function appStart() {
 
     const handleEnterKey = () => {
         // 정답확인코드
-        let 맞은_블록 = 0;
+        let 맞은_블록 = 0;                     
         for (let i = 0; i < 5; i++) {
             const blockin = document.querySelector(`.board-column[data-index='${attempts}${i}']`);
-        
-            const 입력한_글자 = blockin.innerText;
-            const 정답_글자 = 정답[i];
-            if (입력한_글자 === 정답_글자) {
+            const inputLetter = blockin.innerText;
+            const answerLetter = 정답[i];
+
+            const updateKeyboard = (letter, color) => {
+                const keyboard = document.querySelector(`.keboard-column[data-value='${letter}']`);
+                keyboard.style.backgroundColor = color;  
+            };
+            
+            
+            if (inputLetter === answerLetter) {
                 맞은_블록 += 1;
-                blockin.style.background = "#6AAA64";
-            } else if (정답.includes(입력한_글자)) blockin.style.background = "#C9B458";
-            else blockin.style.background = "#787C7E";
+                blockin.style.backgroundColor = "#6AAA64";  
+                updateKeyboard(inputLetter,"#6AAA64");
+            } else if (answerLetter.includes(inputLetter)) {
+                blockin.style.backgroundColor = "#C9B458";
+                updateKeyboard(inputLetter,"#C9B458");
+            } 
+            else {
+                blockin.style.backgroundColor = "#787C7E";
+                updateKeyboard(inputLetter,"#787C7E");
+            } 
 
             blockin.style.color = "white";
         };
-        if(맞은_블록 === 5) gameover();
+
+        
+       
+        if(맞은_블록 === 5) gameover(); 
         else nextLine();
     };
+    
 
     const handleBackspace = () => {
         if (index > 0) {
@@ -56,12 +73,12 @@ function appStart() {
     
     const handleKeydown = (event) => {
         
-
         const key = event.key.toUpperCase(); // 대문자만 들어가게 지정
         const keyCode = event.keyCode;
         const thisBlock = document.querySelector(`.board-column[data-index='${attempts}${index}']`);
         
         if (event.key === 'Backspace') handleBackspace();
+    
         else if (index === 5) {
             if (event.key === 'Enter')  handleEnterKey();
             else return;
@@ -69,11 +86,27 @@ function appStart() {
             thisBlock.innerText = key;
             index += 1; // 다음칸으로 이동
         } 
-
-        
-        
         
     };
+
+    const keyboardmousedown = (event) =>  {
+        const key = event.target.dataset.key;  
+        const asciiKey = key.charCodeAt(0); 
+
+        console.log(key);
+        const thisBlock = document.querySelector(`.board-column[data-index='${attempts}${index}']`);
+        
+        if (key === "Backspace") handleBackspace();
+    
+        else if (index === 5) {
+            if (key === 'Enter')  handleEnterKey();
+            else return;
+        }else if (65 <= asciiKey && asciiKey <= 90)  {             
+            thisBlock.innerText = key;
+            index += 1; // 다음칸으로 이동
+        } 
+       
+    };         
     const startTimer = () => {
         const 시작_시간 = new Date();
 
@@ -87,9 +120,12 @@ function appStart() {
         }
          timer = setInterval(setTime,1000);
     };
+
+    
     
     startTimer();
     window.addEventListener("keydown",handleKeydown); // 키를 눌렀을때 이벤트 발생
+    window.addEventListener("mousedown",keyboardmousedown);
 }
 
 appStart();
